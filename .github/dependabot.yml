@@ -8,7 +8,7 @@ updates:
 
   # Maintain dependencies for NuGet
   - package-ecosystem: "nuget"
-    directory: "/Sources/" # Location of package manifests
+    directory: "/Sources/ComponentBuilder/" # Location of package manifests
     schedule:
       interval: "daily"
     reviewers:
