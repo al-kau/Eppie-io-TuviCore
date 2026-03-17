@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------- //
+// ---------------------------------------------------------------------------- //
 //                                                                              //
 //   Copyright 2026 Eppie (https://eppie.io)                                    //
 //                                                                              //
@@ -16,30 +16,17 @@
 //                                                                              //
 // ---------------------------------------------------------------------------- //
 
-using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Tuvi.Core.Entities;
 
-namespace Tuvi.Core.Entities
+namespace Tuvi.Core.Mail
 {
-    public class ReceivedMessageInfo
+    public interface IMailBoxMessagesRestorer
     {
-        public Account Account => Folder.Account;
-        public Folder Folder => Message.Folder;
-        public Message Message { get; }
-
-        public ReceivedMessageInfo(Message message)
-        {
-            Message = message;
-        }
-    }
-
-    public class MessagesReceivedEventArgs : EventArgs
-    {
-        public List<ReceivedMessageInfo> ReceivedMessages { get; }
-
-        public MessagesReceivedEventArgs(List<ReceivedMessageInfo> receivedMessages)
-        {
-            ReceivedMessages = receivedMessages;
-        }
+        Task RestoreMessagesAsync(Folder folder,
+                                  IReadOnlyList<Message> messages,
+                                  CancellationToken cancellationToken = default);
     }
 }

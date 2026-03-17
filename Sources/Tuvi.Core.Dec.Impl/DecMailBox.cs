@@ -66,7 +66,7 @@ namespace Tuvi.Core.Dec.Impl
         public string Nonce { get; set; }
     }
 
-    internal class DecMailBox : IMailBox
+    internal class DecMailBox : IMailBox, IMailBoxMessagesRestorer
     {
         private readonly Account AccountSettings;
         private readonly IDecStorageClient DecClient;
@@ -148,7 +148,7 @@ namespace Tuvi.Core.Dec.Impl
             }
 
             message.Date = DateTime.Now;
-            var rawMessage = new DecMessageRaw(message);
+            var rawMessage = new DecMessageRaw(message, AccountSettings.DisplayEmail);
             var data = JsonConvert.SerializeObject(rawMessage);
             var finalHashBuilder = new StringBuilder();
 
@@ -454,6 +454,32 @@ namespace Tuvi.Core.Dec.Impl
             var decMessage = await Storage.AddDecMessageAsync(AccountSettings.Email, new DecMessage(null, message), cancellationToken).ConfigureAwait(false);
 
             return decMessage.ToMessage();
+        }
+
+        public async Task RestoreMessagesAsync(Folder folder,
+                                               IReadOnlyList<Message> messages,
+                                               CancellationToken cancellationToken = default)
+        {
+            if (folder is null)
+            {
+                throw new ArgumentNullException(nameof(folder));
+            }
+
+            if (messages is null)
+            {
+                throw new ArgumentNullException(nameof(messages));
+            }
+
+            foreach (var message in messages.Where(x => x != null && x.IsDecentralized))
+            {
+                message.Folder = folder;
+
+                var decMessage = await Storage.AddDecMessageAsync(AccountSettings.Email,
+                                                                  new DecMessage(null, message),
+                                                                  cancellationToken).ConfigureAwait(false);
+
+                message.Id = decMessage.Id;
+            }
         }
 
         private async Task FlagMessageAsync(uint id, Folder folder, CancellationToken cancellationToken)

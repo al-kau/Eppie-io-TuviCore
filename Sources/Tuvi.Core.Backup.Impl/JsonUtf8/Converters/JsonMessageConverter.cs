@@ -64,9 +64,6 @@ namespace Tuvi.Core.Backup.Impl.JsonUtf8.Converters
 
                 switch (propertyName)
                 {
-                    case nameof(Message.Id):
-                        message.Id = reader.GetUInt32();
-                        break;
                     case nameof(Message.Subject):
                         message.Subject = reader.GetString();
                         break;
@@ -78,6 +75,9 @@ namespace Tuvi.Core.Backup.Impl.JsonUtf8.Converters
                         break;
                     case nameof(Message.HtmlBody):
                         message.HtmlBody = reader.GetString();
+                        break;
+                    case nameof(Message.MimeBody):
+                        message.MimeBody = JsonSerializer.Deserialize<byte[]>(ref reader, options);
                         break;
                     case nameof(Message.PreviewText):
                         message.PreviewText = reader.GetString();
@@ -138,11 +138,12 @@ namespace Tuvi.Core.Backup.Impl.JsonUtf8.Converters
 
             writer.WriteStartObject();
 
-            writer.WriteNumber(nameof(Message.Id), value.Id);
             writer.WriteString(nameof(Message.Subject), value.Subject);
             writer.WriteString(nameof(Message.Date), value.Date);
             writer.WriteString(nameof(Message.TextBody), value.TextBody);
             writer.WriteString(nameof(Message.HtmlBody), value.HtmlBody);
+            writer.WritePropertyName(nameof(Message.MimeBody));
+            JsonSerializer.Serialize(writer, value.MimeBody, options);
             writer.WriteString(nameof(Message.PreviewText), value.PreviewText);
 
             writer.WriteBoolean(nameof(Message.IsMarkedAsRead), value.IsMarkedAsRead);
